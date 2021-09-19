@@ -11,9 +11,7 @@ hashTable::hashTable(int size) {
     data.resize(capacity);
 }
 
-
-
-int hashTable::insert(const std::string &key, void *pv){
+int hashTable::insert(const string &key, void *pv){
     int hashedKey = hashTable::hash(key);
 
     if(contains(key)){
@@ -40,7 +38,7 @@ int hashTable::insert(const std::string &key, void *pv){
     return 0;
 }
 
-bool hashTable::contains(const std::string &key){
+bool hashTable::contains(const string &key){
     if(findPos(key) == -1){
         return false;
     }
@@ -57,12 +55,12 @@ bool hashTable::remove(const std::string &key){
 }
 */
 
-int hashTable::hash(const std::string &key){
+int hashTable::hash(const string &key){
     std::hash<std::string> hashFunction;
     return (int)hashFunction(key);
 }
 
-int hashTable::findPos(const std::string &key){
+int hashTable::findPos(const string &key){
     int hashedKey = hashTable::hash(key);
     while(data[hashedKey].isOccupied){
         if(data[hashedKey].key == key){
@@ -87,7 +85,7 @@ bool hashTable::rehash(){
     data.resize(capacity);
     filled = 0;
 
-    for (hashItem item : temp){
+    for (const hashItem& item : temp){
         if (item.isOccupied){
             insert(item.key, item.pv);
         }
