@@ -24,7 +24,7 @@ class hashTable {
   // Check if the specified key is in the hash table.
   // If so, return true; otherwise, return false.
   bool contains(const std::string &key);
-
+/*
   // Get the pointer associated with the specified key.
   // If the key does not exist in the hash table, return nullptr.
   // If an optional pointer to a bool is provided,
@@ -41,7 +41,7 @@ class hashTable {
   // Returns true on success,
   // false if the specified key is not in the hash table.
   bool remove(const std::string &key);
-
+  */
  private:
 
   // Each item in the hash table contains:

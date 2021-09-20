@@ -1,50 +1,50 @@
 #include <iostream>
 #include <fstream>
-#include "hash.cpp"
 #include "hash.h"
+#include <ctime>
 
 
-vector<string> sentenceSplit(string line){
-    string temp1;
-    string temp2;
+using namespace std;
+
+vector<string> sentenceSplit(const string& line){
+    string temp;
     vector<string> brokenLine;
 
-    int index = 0;
-    int wordNo = 0;
     bool numberPresence;
 
     for(char letter : line){
-        if(letter >= '0' && letter <= '9'){
+        if(isdigit(letter)){
             numberPresence = true;
         }
-        if((letter != '\'' && letter != '-') && letter < 'A' || (letter > 'Z' && letter < 'a') || letter > 'z') {
-            temp1 = line.substr(0, index);
-            line = line.substr(index, line.length());
-            if(numberPresence){
-                index = 0;
-                continue;
-            }
-            else{
-                brokenLine[wordNo] = temp1;
-                wordNo++;
-                index = 0;
-            }
+        if(letter >= 'A' && letter <= 'Z'){
+           letter += 32;
         }
-        index++;
+
+        if(letter == '\'' || letter == '-' || isalpha(letter)){
+            temp += letter;
+        }
+        else if(numberPresence){
+            temp.clear();
+            numberPresence = false;
+        }
+        else if(!temp.empty()){
+            brokenLine.push_back(temp);
+            temp.clear();
+        }
     }
     return brokenLine;
 }
 
-void readDictionary(const string& dictFilename, hashTable table){
+void readDictionary(const string& dictFilename, hashTable *table){
     ifstream dictionaryFile(dictFilename);
 
     string line;
     while(getline(dictionaryFile, line)){
-        table.insert(line);
+        table->insert(line);
     }
 }
 
-void parse(const string& inputFilename, const string& outputFilename, hashTable dictionaryTable){
+void parse(const string& inputFilename, const string& outputFilename, hashTable *dictionaryTable){
     ifstream input(inputFilename);
     ofstream output(outputFilename);
     string line;
@@ -53,13 +53,13 @@ void parse(const string& inputFilename, const string& outputFilename, hashTable 
     int lineNumber = 1;
 
     while(getline(input, line)){
-        words = sentenceSplit(line);
+        words = sentenceSplit(line + " ");
         for(const string& word : words){
             if(word.length() > 20){
                 output << "Long word at line " << lineNumber << ", starts: " << word.substr(0, 20) << endl;
             }
-            if(!dictionaryTable.contains(word)){
-                output << "Unknown word at line " << lineNumber << ": " << endl;
+            else if(!dictionaryTable->contains(word)){
+                output << "Unknown word at line " << lineNumber << ": " << word << endl;
             }
         }
         lineNumber++;
@@ -67,25 +67,34 @@ void parse(const string& inputFilename, const string& outputFilename, hashTable 
 }
 
 int main(){
-    hashTable theDictionaryTable;
+    auto *theDictionaryTable = new hashTable(1003);
 
     string input1;
     string input2;
     string output;
 
-    cout << "Name of dictionary file:";
+    cout << "Name of dictionary file: ";
     cin >> input1;
 
-    cout << "Name of input file:";
+    cout << "Name of input file: ";
     cin >> input2;
 
-    cout << "Name of output file:";
+    cout << "Name of output file: ";
     cin >> output;
 
 
-
+    clock_t t1 = clock();
     readDictionary(input1, theDictionaryTable);
+    clock_t t2 = clock();
     parse(input2, output, theDictionaryTable);
+    clock_t t3 = clock();
+
+
+    double timeDiff = ((double) (t2 - t1)) / CLOCKS_PER_SEC;
+    double timeDiff1 = ((double) (t3 - t2)) / CLOCKS_PER_SEC;
+    cout << "Spell-check complete. Dictionary CPU time was " << timeDiff << " seconds.\n";
+    cout << "Spell-check complete. Parse CPU time was " << timeDiff1 << " seconds.\n";
+
 
     return 0;
 }
