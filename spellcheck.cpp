@@ -19,22 +19,20 @@ vector<string> sentenceSplit(const string& line){
         if(isdigit(letter)){
             numberPresence = true;
         }
-        else if(letter >= 'A' && letter <= 'Z'){
-           letter += 32;
+        if(letter >= 'A' && letter <= 'Z'){
+            letter += 32;
         }
 
-        else if(letter == '\'' || letter == '-' || isalpha(letter)){
+        if(isdigit(letter) || letter == '\'' || letter == '-' || isalpha(letter)){
             temp += letter;
         }
+        else if(numberPresence){
+            temp.clear();
+            numberPresence = false;
+        }
         else if(!temp.empty()){
-            if(numberPresence){
-                temp.clear();
-                numberPresence = false;
-            }
-            else {
-                brokenLine.push_back(temp);
-                temp.clear();
-            }
+            brokenLine.push_back(temp);
+            temp.clear();
         }
     }
     return brokenLine;
@@ -49,6 +47,7 @@ void readDictionary(const string& dictFilename, hashTable *table){
         transform(line.begin(), line.end(), line.begin(), ::tolower); //lowercase everything
         table->insert(line);
     }
+
 }
 // looks through input file and uses hash table to spell check
 void parse(const string& inputFilename, const string& outputFilename, hashTable *dictionaryTable){
