@@ -2,24 +2,27 @@
 #include "hash.h"
 using namespace std;
 
-
+// constructor
 hashTable::hashTable(int size) {
     capacity = getPrime(size);
     filled = 0;
     data.resize(capacity);
 }
-
+// uses hash function
 int hashTable::insert(const string &key, void *pv){
 
     int hashedKey = hashTable::hash(key);
+    // checks if key already exists
     if(contains(key)){
         return 1;
     }
+    // rehash if more than half the capacity is used
     if(filled >= (capacity / 2)){
         if(!rehash()){
             return 2;
         }
     }
+    // if mapped value is occupied (or lazily deleted), keep moving to the right
     while(data[hashedKey].isOccupied && !data[hashedKey].isDeleted){
         if(hashedKey == capacity - 1){
             hashedKey = 0;
@@ -34,13 +37,14 @@ int hashTable::insert(const string &key, void *pv){
 
 
 }
-
+// uses the return value of findPos() to determine presence
 bool hashTable::contains(const string &key){
     if(findPos(key) == -1){
         return false;
     }
     return true;
 }
+// will be implemented in the next assignment
 /*
 void *hashTable::getPointer(const std::string &key, bool *b){
 }
@@ -51,7 +55,7 @@ int hashTable::setPointer(const std::string &key, void *pv){
 bool hashTable::remove(const std::string &key){
 }
 */
-
+// hash function obtained from https://stackoverflow.com/questions/8567238/hash-function-in-c-for-string-to-int
 int hashTable::hash(const string &key){
     int hashVal = 0;
 
@@ -60,13 +64,12 @@ int hashTable::hash(const string &key){
     }
 
     hashVal %= capacity;
-
     if(hashVal < 0){
         hashVal += capacity;
     }
     return hashVal;
 }
-
+// checks at mapped value, then looks for it manually
 int hashTable::findPos(const string &key){
     int hashedKey = hashTable::hash(key);
     while(data[hashedKey].isOccupied){
@@ -80,7 +83,7 @@ int hashTable::findPos(const string &key){
     }
     return -1;
 }
-
+// changes capacity and rehashes based on new capacity
 bool hashTable::rehash(){
     if (capacity == getPrime(capacity))
         return false;
